@@ -10,6 +10,7 @@ import numpy as np
 import gc
 import time
 import warnings
+import random
 
 #stats
 from scipy.misc import imread
@@ -47,6 +48,7 @@ from sklearn import metrics
 from sklearn.metrics import log_loss
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 
 
 
@@ -98,21 +100,80 @@ def bar_plot_label(x, y, x_axis, y_axis, filename):
     plt.show()
 
 # plot different types of labels
-column_sum = labels.sum(axis = 0)
+column_sum = pd.Series(labels.sum(axis = 0))
+clean = pd.Series(train['clean'].sum(), index = ['clean'])
 # add clean document amount as a new type
-column_sum['clean'] = train['clean'].sum()
+column_sum = pd.concat([clean, column_sum])
 # barplot for different labels
-plot_subtype = bar_plot_label(column_sum.index, column_sum.values, 'Subtype', 'number of records','subtype.eps')
+plot_subtype = bar_plot_label(column_sum.index, column_sum.values, 'Subtype', 'number of records','figure/subtype.eps')
 
 # multi-tagging
 multi_tags = [ sum(row_sum == i) for i in range(7)]
 multi_tags = pd.Series(multi_tags, index = [0,1,2,3,4,5,6])
-bar_plot_label(multi_tags.index, multi_tags.values)
+bar_plot_label(multi_tags.index, multi_tags.values,'number of tags', 'number of records', 'figure/multi_tags.eps')
 
 # correlation between subtypes
 corr = train.iloc[:,2:8].corr()
 plt.figure(figsize = (12,8))
 corr_plot = sns.heatmap(corr, annot = True)
 # save the figure
-fig = corr_plot.get_figure()
-fig.savefig('correlation.eps')
+fig_corr = corr_plot.get_figure()
+fig_corr.savefig('figure/correlation.eps')
+
+# crosstab
+subtypes = ['severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
+i = 1
+plt.figure(figsize = (15,4))
+for subtype in subtypes:
+    plt.subplot(1,5,i)
+    cross = sns.heatmap(pd.crosstab(train['toxic'],train[subtype]),annot = True, fmt = '', cbar = False, cmap = "Blues")
+    i += 1
+plt.show()
+fig_cross = cross.get_figure()
+fig_cross.savefig('figure/crosstab.eps')
+
+# example comments
+all_types = ['clean', 'toxic','severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
+for t in all_types:
+    record_number = random.randint(1, train[t].sum())
+    print('The {}th record of "{}" comments is:'.format(record_number,t))
+    print(train[train[t] == 1].iloc[record_number,1])
+    print('')
+
+# frequent words
+def wordcloud_generator(subtype, background, mask_file):
+    subset = train[train[subtype] == True]
+    subset_text = subset.comment_text.values
+    # import mask file
+    mask = np.array(Image.open(mask_file))
+    mask = mask[:, :, 1]
+    # create a wordcloud for the text
+    wordcloud = WordCloud(background_color = background, mask = mask, stopwords = stopwords_eng)
+    wordcloud.generate(" ".join(subset_text))
+    return wordcloud
+
+# wordcloud plot for clean comments
+wordcloud_clean = wordcloud_generator('clean','white','image/mask_clean.jpg')
+wordcloud_clean_plot = plt.imshow(wordcloud_clean.recolor(colormap = 'viridis', random_state = 29), interpolation = 'bilinear')
+plt.axis("off")
+plt.show()
+#save the figure
+fig_wordcloud_clean = wordcloud_clean_plot.get_figure()
+fig_wordcloud_clean.savefig('figure/wordcloud_toxic.eps')
+
+# wordcloud plot for subtypes of toxic comments
+toxic_types = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
+colormaps = ['magma', 'Reds', 'inferno', 'Paired_r', 'Paired_r', 'plasma']
+plt.subplots(3,2, figsize=(10,15))
+i = 1
+for toxic_type, colormap in zip(toxic_types, colormaps):
+    plt.subplot(3,2,i)
+    wordcloud_toxic = wordcloud_generator(toxic_type,'black','image/mask_toxic.jpg')
+    wordcloud_toxic_plot = plt.imshow(wordcloud_toxic.recolor(colormap = colormap, random_state = 29), interpolation = 'bilinear')
+    plt.axis("off")
+    plt.gca().set_title(toxic_type)
+    i += 1
+plt.show()
+# save the figure
+fig_wordcloud_toxic = wordcloud_toxic_plot.get_figure()
+fig_wordcloud_toxic.savefig('figure/wordcloud_toxic.eps')
