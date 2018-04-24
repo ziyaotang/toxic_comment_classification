@@ -4,7 +4,9 @@ This project is about online comments classification, which is based on a public
 Comment Classification Challenge](https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge). The goal of this project is to build a multi-headed model that’s capable of detecting different types of toxicity like threats, obscenity, insults, and identity-based hate. Such model will hopefully help online discussion become more productive and respectful.
 
 Several model architectures have been studied, such as CNN, RNN and pre-trained embedding (GloVe). Please check the `capstone_report.pdf` for detailed discussion.
-![Sample Output][figure/wordcloud_clean.eps]
+![WordCloud for clean online comment](figure/wordcloud_clean.eps)
+![Alt text](figure/wordcloud_clean.eps?raw=true "Title")
+![alt tag](toxic_comment_classification/figure/wordcloud_clean.eps "Description goes here")
 ### Dataset
 The dataset contains about 160k human labeled comments from Wikipedia Talk pages. The labeled annotations
 are obtained by asking 5000 crowd-workers to rate Wikipedia comments according to their toxicity (likely to
