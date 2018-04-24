@@ -5,6 +5,8 @@ Comment Classification Challenge](https://www.kaggle.com/c/jigsaw-toxic-comment-
 
 Several model architectures have been studied, such as CNN, RNN and pre-trained embedding (GloVe). Please check the `capstone_report.pdf` for detailed discussion.
 ![WordCloud for clean online comment](figure/wordcloud_clean.eps)
+![Alt text](figure/wordcloud_clean.eps?raw=true "Title")
+![alt tag](figure/wordcloud_clean.eps "Description goes here")
 ### Dataset
 The dataset contains about 160k human labeled comments from Wikipedia Talk pages. The labeled annotations
 are obtained by asking 5000 crowd-workers to rate Wikipedia comments according to their toxicity (likely to
