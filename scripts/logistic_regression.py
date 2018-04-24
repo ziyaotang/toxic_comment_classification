@@ -13,35 +13,19 @@ test = pd.read_csv('test.csv').fillna(' ')
 
 train_text = train['comment_text']
 test_text = test['comment_text']
-
+# create word vectorizer
 word_vectorizer = TfidfVectorizer(
     sublinear_tf = True,
     strip_accents = 'unicode',
     analyzer = 'word',
     token_pattern = r'\w{1,}',
     stop_words = 'english',
-    ngram_range = (1, 1),
-    max_features = 10000)
+    ngram_range = (1, 6),
+    max_features = 20000)
 
 word_vectorizer.fit(train_text)
-train_word_features = word_vectorizer.transform(train_text)
-test_word_features = word_vectorizer.transform(test_text)
-
-char_vectorizer = TfidfVectorizer(
-    sublinear_tf = True,
-    strip_accents = 'unicode',
-    analyzer = 'word',
-    token_pattern = r'\w{1,}',
-    stop_words = 'english',
-    ngram_range = (2, 6),
-    max_features = 50000)
-
-char_vectorizer.fit(train_text)
-train_char_features = char_vectorizer.transform(train_text)
-test_char_features = char_vectorizer.transform(test_text)
-
-train_features = hstack([train_word_features, train_char_features])
-test_features = hstack([test_word_features, test_char_features])
+train_features = word_vectorizer.transform(train_text)
+test_features = word_vectorizer.transform(test_text)
 
 scores = []
 submission = pd.DataFrame.from_dict({'id':test['id']})
